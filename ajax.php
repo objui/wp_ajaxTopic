@@ -501,7 +501,7 @@ if (!function_exists('register')) {
         if ( $errors->get_error_code() ){
              $json = [
                  'code'=> 10001,
-                 'msg' => $errors->get_error_message();
+                 'msg' => $errors->get_error_message()
              ];    
         }else{
             $user_id = wp_create_user( $user_login, $user_pass, $user_email );   
