@@ -61,6 +61,14 @@ add_action('wp_ajax_nopriv_comment_callback', 'comment_callback');
 add_action('wp_ajax_cus_get_comment', 'cus_get_comment');
 add_action('wp_ajax_nopriv_cus_get_comment', 'cus_get_comment');
 
+#登录
+add_action('wp_ajax_login', 'login');
+add_action('wp_ajax_nopriv_login', 'login');
+
+#注册
+add_action('wp_ajax_register', 'register');
+add_action('wp_ajax_nopriv_register', 'register');
+
 
 /**
  * 获取文章访问量

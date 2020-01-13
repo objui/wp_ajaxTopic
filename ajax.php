@@ -448,4 +448,77 @@ if (!function_exists('get_taglist')) {
     }    
 }
 
+if (!function_exists('login')) {
+    /**
+     * 登录
+     */
+    function login(){
+        $args = wp_unslash($_POST);
+        $creds['user_login'] = $args['username'];
+        $creds['user_password'] = $args['password'];
+        $creds['remember'] = isset($args['remember']) ? $args['remember'] : false;
+        $login = wp_signon($creds, false);
 
+        if(!is_wp_error($login)){
+            $udata = $login->data;
+            $info = [
+                'uid'       => $udata->ID,
+                'username'  =>$udata->user_nicename,
+                'email'     =>$udata->user_email
+            ];
+            $json = [
+                'code' => 200,
+                'msg'  => '登录成功',
+                'data' => $info
+            ];
+        } else {
+            $json = [
+                'code' => 403,
+               'msg'  => $login->errors ? strip_tags( $login->get_error_message() ) : '账号不存在或密码错误'
+            ];    
+        } 
+        echo json_encode($json);
+        exit;
+    }    
+}
+
+if (!function_exists('register')) {
+    function register(){
+        $args = wp_unslash($_POST);
+        $user_login = $args['username'];
+        $user_pass = $args['password'];
+        $user_email = $args['email']; 
+        $errors = new WP_Error();
+        if( ! validate_username( $user_login ) ){ 
+            $errors->add( 'invalid_username', __( '请输入一个有效用户名','tinection' ) );    
+        }elseif(username_exists( $user_login )){
+            $errors->add( 'username_exists', __( '此用户名已被注册','tinection' ) );    
+        }elseif(email_exists( $user_email )){
+            $errors->add( 'email_exists', __( '此邮箱已被注册','tinection' ) );    
+        }
+        do_action( 'register_post', $user_login, $user_email, $errors );
+        $errors = apppl_filters('registration_errors', $errors, $user_login, $user_email);   
+        if ( $errors->get_error_code() ){
+             $json = [
+                 'code'=> 10001,
+                 'msg' => $errors->get_error_message();
+             ];    
+        }else{
+            $user_id = wp_create_user( $user_login, $user_pass, $user_email );   
+            if(!$user_id){
+                $json = [
+                    'code' => 10002,
+                    'msg'  => '注册失败'
+                ];
+            } else {
+                $json = [
+                    'code' => 200,
+                    'msg'  => '注册成功'
+                ];    
+            }
+        }
+        echo json_encode($json);
+        exit;
+
+    }    
+}
